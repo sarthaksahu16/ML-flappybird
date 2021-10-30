@@ -63,4 +63,67 @@ GeneticAlgorithm.prototype = {
 		if (outputs[0] > 0.5) bird.flap();
 	},
 	
+	// evolves the population by performing selection, crossover and mutations on the units
+	evolvePopulation : function(){
+		// select the top units of the current population to get an array of winners
+		// (they will be copied to the next population)
+		var Winners = this.selection();
+
+		if (this.mutateRate == 1 && Winners[0].fitness < 0){ 
+			// If the best unit from the initial population has a negative fitness 
+			// then it means there is no any bird which reached the first barrier!
+			// Playing as the God, we can destroy this bad population and try with another one.
+			this.createPopulation();
+		} else {
+			this.mutateRate = 0.2; // else set the mutatation rate to the real value
+		}
+			
+		// fill the rest of the next population with new units using crossover and mutation
+		for (var i=this.top_units; i<this.max_units; i++){
+			var parentA, parentB, offspring;
+				
+			if (i == this.top_units){
+				// offspring is made by a crossover of two best winners
+				parentA = Winners[0].toJSON();
+				parentB = Winners[1].toJSON();
+				offspring = this.crossOver(parentA, parentB);
+
+			} else if (i < this.max_units-2){
+				// offspring is made by a crossover of two random winners
+				parentA = this.getRandomUnit(Winners).toJSON();
+				parentB = this.getRandomUnit(Winners).toJSON();
+				offspring = this.crossOver(parentA, parentB);
+				
+			} else {
+				// offspring is a random winner
+				offspring = this.getRandomUnit(Winners).toJSON();
+			}
+
+			// mutate the offspring
+			offspring = this.mutation(offspring);
+			
+			// create a new unit using the neural network from the offspring
+			var newUnit = synaptic.Network.fromJSON(offspring);
+			newUnit.index = this.Population[i].index;
+			newUnit.fitness = 0;
+			newUnit.score = 0;
+			newUnit.isWinner = false;
+			
+			// update population by changing the old unit with the new one
+			this.Population[i] = newUnit;
+		}
+		
+		// if the top winner has the best fitness in the history, store its achievement!
+		if (Winners[0].fitness > this.best_fitness){
+			this.best_population = this.iteration;
+			this.best_fitness = Winners[0].fitness;
+			this.best_score = Winners[0].score;
+		}
+		
+		// sort the units of the new population	in ascending order by their index
+		this.Population.sort(function(unitA, unitB){
+			return unitA.index - unitB.index;
+		});
+	},
+	
 }
