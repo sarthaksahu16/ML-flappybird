@@ -291,7 +291,42 @@ App.Main.prototype = {
 /***********************************************************************************
 /* TreeGroup Class extends Phaser.Group
 /***********************************************************************************/	
+var TreeGroup = function(game, parent, index){
+	Phaser.Group.call(this, game, parent);
+
+	this.index = index;
+
+	this.topTree = new Tree(this.game, 0); // create a top Tree object
+	this.bottomTree = new Tree(this.game, 1); // create a bottom Tree object
 	
+	this.add(this.topTree); // add the top Tree to this group
+	this.add(this.bottomTree); // add the bottom Tree to this group
+};
+
+TreeGroup.prototype = Object.create(Phaser.Group.prototype);
+TreeGroup.prototype.constructor = TreeGroup;
+
+TreeGroup.prototype.restart = function(x) {
+	this.topTree.reset(0, 0);
+	this.bottomTree.reset(0, this.topTree.height + 130);
+
+	this.x = x;
+	this.y = this.game.rnd.integerInRange(110-this.topTree.height, -20);
+
+	this.setAll('body.velocity.x', -200);
+};
+
+TreeGroup.prototype.getWorldX = function() {
+	return this.topTree.world.x;
+};
+
+TreeGroup.prototype.getGapX = function() {
+	return this.bottomTree.world.x + this.bottomTree.width;
+};
+
+TreeGroup.prototype.getGapY = function() {
+	return this.bottomTree.world.y - 65;
+};
 
 
 /***********************************************************************************
