@@ -416,4 +416,16 @@ Bird.prototype.death = function(){
 /***********************************************************************************
 /* Text Class extends Phaser.BitmapText
 /***********************************************************************************/
+var Text = function(game, x, y, text, align, font){
+	Phaser.BitmapText.call(this, game, x, y, font, text, 16);
+	
+	this.align = align;
+	
+	if (align == "right") this.anchor.setTo(1, 0);
+	else this.anchor.setTo(0.5);
+	
+	this.game.add.existing(this);
+};
 
+Text.prototype = Object.create(Phaser.BitmapText.prototype);
+Text.prototype.constructor = Text;
