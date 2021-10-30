@@ -44,5 +44,23 @@ GeneticAlgorithm.prototype = {
 			this.Population.push(newUnit);
 		}
 	},
+	// activates the neural network of an unit from the population 
+	// to calculate an output action according to the inputs
+	activateBrain : function(bird, target){		
+		// input 1: the horizontal distance between the bird and the target
+		var targetDeltaX = this.normalize(target.x, 700) * this.SCALE_FACTOR;
+		
+		// input 2: the height difference between the bird and the target
+		var targetDeltaY = this.normalize(bird.y - target.y, 800) * this.SCALE_FACTOR;
+	
+		// create an array of all inputs
+		var inputs = [targetDeltaX, targetDeltaY];
+		
+		// calculate outputs by activating synaptic neural network of this bird
+		var outputs = this.Population[bird.index].activate(inputs);
+			
+		// perform flap if output is greater than 0.5
+		if (outputs[0] > 0.5) bird.flap();
+	},
 	
 }
